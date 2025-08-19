@@ -11,6 +11,13 @@ VERIFY_TOKEN = "botchat123"
 APP_SECRET = os.getenv("APP_SECRET")
 client = openai(api_key=os.getenv("OPENAI_API_KEY"))
 
+response = openai.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[{"role": "user", "content": "Hello"}]
+)
+
+print(response.choices[0].message.content)
+
 #Hàm gọi GPT
 def ask_gpt(user_message):
     try:
