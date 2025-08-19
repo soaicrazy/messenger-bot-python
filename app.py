@@ -38,11 +38,16 @@ def webhook():
                 sender = event.get("sender", {}).get("id")
                 if "message" in event:
                     text = event["message"].get("text", "")
-                    # Gửi câu hỏi cho OpenAI
-                    reply = ask_openai(text)
-                    send_message(sender, reply)
-        return "OK", 200
+                    # Xử lý async (trả lời FB ngay)
+                    from threading import Thread
+                    Thread(target=handle_message, args=(sender, text)).start()
+        return "EVENT_RECEIVED", 200
     return "Not Found", 404
+
+def handle_message(sender, text):
+    reply = ask_openai(text)
+    send_message(sender, reply)
+
 
 # Gửi message ra Messenger
 def send_message(psid, text):
