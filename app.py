@@ -75,19 +75,28 @@ def webhook():
                         reply = f"⏰ Bây giờ là {now}."
                     # --- nối từ ---
                     elif any(word in text_lower for word in game_keywords):
-                        if sender not in sessions:   # nếu user chưa có session game
-                            sessions[sender] = {"noi_tu": {"last_word": "bạn"}}
-                            reply = "🎮 Bắt đầu game nối từ! Mình mở đầu: 'bạn'. Giờ tới lượt bạn!"
+                        essions[sender] = {"noi_tu": {"last_phrase": "bạn thân"}}
+                        reply = "🎮 Bắt đầu game nối từ 2 từ! Mình mở đầu: 'bạn thân'. Giờ tới lượt bạn!"
+                    elif sender in sessions and sessions[sender]["mode"] == "noi_tu":
+                        if text_lower == "thoát":
+                            del sessions[sender]
+                            reply = "✅ Bạn đã thoát game. Giờ mình quay lại chat bình thường nhé!"
                         else:
-                            last_word = sessions[sender]["noi_tu"]["last_word"]
-                            new_word = text.strip().lower()
+                            last_phrase = sessions[sender]["last_phrase"]
+                            new_phrase = text.strip().lower().split()
                     
-                            if new_word and new_word[0] == last_word[-1]:
-                                sessions[sender]["noi_tu"]["last_word"] = new_word
-                                reply = f"✅ Đúng rồi! Mình nối tiếp: '{new_word[-1]}...'"
+                            if len(new_phrase) < 2:
+                                reply = "⚠️ Bạn phải nhập ít nhất 2 từ (ví dụ: 'bạn thân')."
                             else:
-                                reply = f"❌ Sai rồi! Từ '{new_word}' không bắt đầu bằng '{last_word[-1]}'. Game kết thúc."
-                                del sessions[sender]
+                                last_word = last_phrase.split()[-1]   # từ cuối cụm cũ
+                                first_word = new_phrase[0]            # từ đầu cụm mới
+                    
+                                if first_word == last_word:
+                                    sessions[sender]["last_phrase"] = " ".join(new_phrase)
+                                    reply = f"✅ Chuẩn! Giờ mình nối tiếp từ '{new_phrase[-1]}...'"
+                                else:
+                                    reply = f"❌ Sai rồi! Cụm từ bạn nhập không bắt đầu bằng '{last_word}'. Game kết thúc."
+                                    del sessions[sender]
                                 
                     elif any(word in text_lower for word in dice_keywords):
                         if "chơi" in text_lower or "2" in text_lower:
