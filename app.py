@@ -93,8 +93,15 @@ def webhook():
                                 first_word = new_phrase[0]            # từ đầu cụm mới
                     
                                 if first_word == last_word:
-                                    sessions[sender]["last_phrase"] = " ".join(new_phrase)
-                                    reply = f"✅ Chuẩn! Giờ mình nối tiếp từ '{new_phrase[-1]}...'"
+                                    # Lưu cụm người chơi vừa nhập
+                                    user_phrase = " ".join(new_phrase)
+                                    sessions[sender]["last_phrase"] = user_phrase
+                                
+                                    # Bot nối tiếp (giả sử bot thêm chữ "vui" để nối)
+                                    bot_phrase = f"{new_phrase[-1]} vui"
+                                    sessions[sender]["last_phrase"] = bot_phrase
+                                
+                                    reply = f"✅ Chuẩn! Bạn nhập: '{user_phrase}'\n🤖 Mình nối tiếp: '{bot_phrase}'. Giờ tới lượt bạn!"
                                 else:
                                     reply = f"❌ Sai rồi! Cụm từ bạn nhập không bắt đầu bằng '{last_word}'. Game kết thúc."
                                     del sessions[sender]
