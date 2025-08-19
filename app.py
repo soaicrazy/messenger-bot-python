@@ -73,10 +73,11 @@ def webhook():
                     elif any(word in text_lower for word in ask_time):
                         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         reply = f"⏰ Bây giờ là {now}."
-                    # --- nối từ ---
+                   # --- nối từ ---
                     elif any(word in text_lower for word in game_keywords):
-                        essions[sender] = {"noi_tu": {"last_phrase": "bạn thân"}}
+                        sessions[sender] = {"mode": "noi_tu", "last_phrase": "bạn thân"}
                         reply = "🎮 Bắt đầu game nối từ 2 từ! Mình mở đầu: 'bạn thân'. Giờ tới lượt bạn!"
+                    
                     elif sender in sessions and sessions[sender]["mode"] == "noi_tu":
                         if text_lower == "thoát":
                             del sessions[sender]
@@ -97,6 +98,7 @@ def webhook():
                                 else:
                                     reply = f"❌ Sai rồi! Cụm từ bạn nhập không bắt đầu bằng '{last_word}'. Game kết thúc."
                                     del sessions[sender]
+
                                 
                     elif any(word in text_lower for word in dice_keywords):
                         if "chơi" in text_lower or "2" in text_lower:
