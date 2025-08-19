@@ -71,24 +71,25 @@ def webhook():
                     # --- dạy bot học ---
                     elif text_lower.startswith("học:"):
                         try:
-                            parts = text_lower.replace("học:", "").split("=")
+                            parts = text.replace("học:", "", 1).split("=")   # dùng text gốc để giữ viết hoa
                             keyword, answer = parts[0].strip(), parts[1].strip()
-                            responses[keyword] = answer
+                            responses[keyword.lower()] = answer  # lưu key chữ thường để so khớp
                             save_responses()
                             reply = f"👌 Đã học thêm từ mới: '{keyword}'"
                         except:
                             reply = "⚠️ Sai cú pháp, hãy nhắn: học: từ khóa = câu trả lời"
 
                     # --- kiểm tra trong data.json ---
-                    else:
+                   else:
                         found = False
                         for key, value in responses.items():
-                            if key in text_lower:
-                                reply = value
+                            if key in text_lower:   # so khớp chữ thường
+                                reply = value       # nhưng trả về đúng value gốc (có viết hoa)
                                 found = True
                                 break
                         if not found:
                             reply = f"🤔 Xin lỗi, mình chưa hiểu: {text}"
+
 
                     send_message(sender, reply)
 
