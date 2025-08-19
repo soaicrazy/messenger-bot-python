@@ -2,6 +2,9 @@ import os, hmac, hashlib
 from flask import Flask, request
 import requests
 from datetime import datetime
+import random   # 👈 để chơi xúc xắc
+
+
 app = Flask(__name__)
 
 PAGE_ACCESS_TOKEN ="EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRUHWc4ZBx3pRbSz5d8wZCtsTd8GyAZADfGfWKUmCZBJnygZAVvjvH7VgqRBURsLTZC45TWGnIaD7cQ8FfPVfjBoBZALpQMOIlc7QJnGBDTswByTba30lxvGenx72PxifPbPBkzk1X5igoWCZBl8nGZBgZDZD"
@@ -46,6 +49,7 @@ def handle_message(sender, text):
     ask_weather = ["thời tiết", "trời mưa không", "hôm nay thế nào"]
     ask_name = ["bạn tên gì", "tên gì", "who are you"]
     ask_contact = ["liên hệ", "contact", "hỗ trợ"]
+    dice_keywords = ["xúc xắc", "dice", "tung xúc xắc"]
 
     # --- Trả lời theo từ khóa ---
     if any(word in text_lower for word in greetings):
@@ -63,6 +67,21 @@ def handle_message(sender, text):
         reply = "☁️ Mình chưa kết nối dữ liệu thời tiết, nhưng bạn có thể xem dự báo trên Google nhé."
     elif any(word in text_lower for word in ask_name):
         reply = "Mình là chatbot mini 🤖, trợ lý ảo của bạn."
+     elif any(word in text_lower for word in dice_keywords):
+                        # Nếu chỉ nói "xúc xắc" thì tung 1 con
+                        if "chơi" in text_lower or "2" in text_lower:
+                            user_dice = random.randint(1, 6)
+                            bot_dice = random.randint(1, 6)
+                            if user_dice > bot_dice:
+                                result = "🎉 Bạn thắng!"
+                            elif user_dice < bot_dice:
+                                result = "🤖 Bot thắng!"
+                            else:
+                                result = "😅 Hòa rồi!"
+                            reply = f"🎲 Bạn tung được {user_dice}\n🤖 Bot tung được {bot_dice}\n👉 {result}"
+                        else:
+                            dice = random.randint(1, 6)
+                            reply = f"🎲 Bạn tung được số {dice}"
     elif any(word in text_lower for word in ask_contact):
         reply = "📞 Bạn có thể liên hệ qua email: soaicrazy@gmail.com hoặc gọi 0964739032."
     else:
