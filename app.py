@@ -51,7 +51,7 @@ def webhook():
 
                     elif any(word in text_lower for word in ask_time):
                         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        reply = f"⏰ Bây giờ server là {now}."
+                        reply = f"⏰ Bây giờ là {now}."
 
                     elif any(word in text_lower for word in dice_keywords):
                         if "chơi" in text_lower or "2" in text_lower:
