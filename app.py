@@ -66,8 +66,12 @@ def send_message(recipient_id, message_text):
         "message": {"text": message_text}
     }
     params = {"access_token": PAGE_ACCESS_TOKEN}
-    requests.post("https://graph.facebook.com/v12.0/me/messages",
-                  params=params, headers=headers, json=data)
+    response = requests.post(
+        "https://graph.facebook.com/v12.0/me/messages",
+        params=params, headers=headers, json=data
+    )
+    print("Send message response:", response.status_code, response.text)
+
 
 
 if __name__ == "__main__":
