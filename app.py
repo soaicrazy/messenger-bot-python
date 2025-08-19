@@ -61,27 +61,27 @@ def handle_message(sender, text):
     elif text_lower == "menu":
         reply = "📌 Menu:\n1. Giới thiệu\n2. Hỗ trợ\n3. Liên hệ\n4. Thời tiết\n5. Giờ hiện tại"
     elif any(word in text_lower for word in ask_time):
-                        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        reply = f"⏰ Bây giờ là {now}."
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        reply = f"⏰ Bây giờ là {now}."
     elif any(word in text_lower for word in ask_weather):
         reply = "☁️ Mình chưa kết nối dữ liệu thời tiết, nhưng bạn có thể xem dự báo trên Google nhé."
     elif any(word in text_lower for word in ask_name):
         reply = "Mình là chatbot mini 🤖, trợ lý ảo của bạn."
      elif any(word in text_lower for word in dice_keywords):
-                        # Nếu chỉ nói "xúc xắc" thì tung 1 con
-                        if "chơi" in text_lower or "2" in text_lower:
-                            user_dice = random.randint(1, 6)
-                            bot_dice = random.randint(1, 6)
-                            if user_dice > bot_dice:
-                                result = "🎉 Bạn thắng!"
-                            elif user_dice < bot_dice:
-                                result = "🤖 Bot thắng!"
-                            else:
-                                result = "😅 Hòa rồi!"
-                            reply = f"🎲 Bạn tung được {user_dice}\n🤖 Bot tung được {bot_dice}\n👉 {result}"
-                        else:
-                            dice = random.randint(1, 6)
-                            reply = f"🎲 Bạn tung được số {dice}"
+        # Nếu chỉ nói "xúc xắc" thì tung 1 con
+        if "chơi" in text_lower or "2" in text_lower:
+           user_dice = random.randint(1, 6)
+           bot_dice = random.randint(1, 6)
+           if user_dice > bot_dice:
+              result = "🎉 Bạn thắng!"
+           elif user_dice < bot_dice:
+              result = "🤖 Bot thắng!"
+           else:
+              result = "😅 Hòa rồi!"
+           reply = f"🎲 Bạn tung được {user_dice}\n🤖 Bot tung được {bot_dice}\n👉 {result}"
+        else:
+            dice = random.randint(1, 6)
+            reply = f"🎲 Bạn tung được số {dice}"
     elif any(word in text_lower for word in ask_contact):
         reply = "📞 Bạn có thể liên hệ qua email: soaicrazy@gmail.com hoặc gọi 0964739032."
     else:
