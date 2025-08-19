@@ -1,4 +1,6 @@
 flask
 requests
 python-dotenv
-openai
+openai==1.6.1   # SDK mới
+
+
