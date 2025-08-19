@@ -2,14 +2,19 @@ import os, random, json
 from flask import Flask, request
 import requests
 from datetime import datetime
+import openai
 
+# ============= CẤU HÌNH =============
 app = Flask(__name__)
 
-PAGE_ACCESS_TOKEN = "EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRUHWc4ZBx3pRbSz5d8wZCtsTd8GyAZADfGfWKUmCZBJnygZAVvjvH7VgqRBURsLTZC45TWGnIaD7cQ8FfPVfjBoBZALpQMOIlc7QJnGBDTswByTba30lxvGenx72PxifPbPBkzk1X5igoWCZBl8nGZBgZDZD"
+PAGE_ACCESS_TOKEN = "FACEBOOK_PAGE_ACCESS_TOKEN"
 VERIFY_TOKEN = "botchat123"
 RESPONSES_FILE = "responses.json"
 
+openai.api_key = "OPENAI_API_KEY"   # << thay bằng API key của bạn
+
 sessions = {}
+
 # ======================
 # Load / Save học thêm
 # ======================
@@ -22,6 +27,19 @@ else:
 def save_responses():
     with open(RESPONSES_FILE, "w", encoding="utf-8") as f:
         json.dump(responses, f, ensure_ascii=False, indent=2)
+
+# ======================
+# Hàm gọi ChatGPT
+# ======================
+def ask_gpt(prompt):
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",   # hoặc "gpt-4"
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response["choices"][0]["message"]["content"].strip()
+    except Exception as e:
+        return f"⚠️ Lỗi AI: {e}"
 
 # ======================
 # Verify webhook
@@ -54,7 +72,6 @@ def webhook():
                     dice_keywords = ["xúc xắc", "dice", "lắc"]
                     game_keywords = ["nối từ", "chơi nối từ không", "chơi nối từ ko"]
 
-
                     # --- học thêm ---
                     if text_lower.startswith("học:"):
                         try:
@@ -73,7 +90,8 @@ def webhook():
                     elif any(word in text_lower for word in ask_time):
                         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         reply = f"⏰ Bây giờ là {now}."
-                   # --- nối từ ---
+
+                    # --- nối từ ---
                     elif any(word in text_lower for word in game_keywords):
                         sessions[sender] = {"mode": "noi_tu", "last_phrase": "bạn thân"}
                         reply = "🎮 Bắt đầu game nối từ 2 từ! Mình mở đầu: 'bạn thân'. Giờ tới lượt bạn!"
@@ -89,15 +107,13 @@ def webhook():
                             if len(new_phrase) < 2:
                                 reply = "⚠️ Bạn phải nhập ít nhất 2 từ (ví dụ: 'bạn thân')."
                             else:
-                                last_word = last_phrase.split()[-1]   # từ cuối cụm cũ
-                                first_word = new_phrase[0]            # từ đầu cụm mới
+                                last_word = last_phrase.split()[-1]
+                                first_word = new_phrase[0]
                     
                                 if first_word == last_word:
-                                    # Lưu cụm người chơi vừa nhập
                                     user_phrase = " ".join(new_phrase)
                                     sessions[sender]["last_phrase"] = user_phrase
                                 
-                                    # Bot nối tiếp (giả sử bot thêm chữ "vui" để nối)
                                     bot_phrase = f"{new_phrase[-1]} vui"
                                     sessions[sender]["last_phrase"] = bot_phrase
                                 
@@ -106,7 +122,7 @@ def webhook():
                                     reply = f"❌ Sai rồi! Cụm từ bạn nhập không bắt đầu bằng '{last_word}'. Game kết thúc."
                                     del sessions[sender]
 
-                                
+                    # --- xúc xắc ---
                     elif any(word in text_lower for word in dice_keywords):
                         if "chơi" in text_lower or "2" in text_lower:
                             user_dice = random.randint(1, 6)
@@ -122,16 +138,17 @@ def webhook():
                             dice = random.randint(1, 6)
                             reply = f"🎲 Bạn tung được số {dice}"
 
+                    # --- keyword học được ---
                     else:
                         found = False
                         for key, value in responses.items():
-                            if key in text_lower:   # so khớp chữ thường
-                                reply = value       # trả lời đúng value gốc (giữ viết hoa)
+                            if key in text_lower:
+                                reply = value
                                 found = True
                                 break
                         if not found:
-                           reply = f"🤔 Xin lỗi, mình chưa hiểu: {text}\n👉 Bạn có thể dạy mình bằng cú pháp: học: từ khóa = câu trả lời"
-
+                            # Gọi AI nếu không khớp rule nào
+                            reply = ask_gpt(text)
 
                     send_message(sender, reply)
 
