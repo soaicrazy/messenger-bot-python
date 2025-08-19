@@ -26,14 +26,14 @@ def webhook():
                     continue
                 if "message" in event:
                     text = event["message"].get("text", "")
-                     handle_message(sender, text)
+                    handle_message(sender, text)   # ✅ gọi handle_message thay vì echo
                 elif "postback" in event:
                     payload = event["postback"].get("payload")
                     if payload == "GET_STARTED":
                         send_message(sender, "Xin chào! Gõ 'menu' để bắt đầu.")
         return "OK", 200
     return "Not Found", 404
-    
+
 # ✅ Xử lý tin nhắn người dùng
 def handle_message(sender, text):
     text_lower = text.strip().lower()
@@ -54,7 +54,7 @@ def handle_message(sender, text):
         reply = f"Bạn vừa nói: {text}"  # fallback
 
     send_message(sender, reply)
-    
+
 # ✅ Gửi message ra Messenger
 def send_message(psid, text):
     url = "https://graph.facebook.com/v19.0/me/messages"
