@@ -38,10 +38,16 @@ def webhook():
 def handle_message(sender, text):
     text_lower = text.strip().lower()
 
+    # --- Các nhóm từ khóa ---
     greetings = ["hi", "hello", "xin chào", "chào", "helo", "hí"]
     bye_words = ["bye", "tạm biệt", "bái bai"]
     thanks_words = ["cảm ơn", "thank", "thanks"]
+    ask_time = ["mấy giờ", "time", "giờ hiện tại"]
+    ask_weather = ["thời tiết", "trời mưa không", "hôm nay thế nào"]
+    ask_name = ["bạn tên gì", "tên gì", "who are you"]
+    ask_contact = ["liên hệ", "contact", "hỗ trợ"]
 
+    # --- Trả lời theo từ khóa ---
     if any(word in text_lower for word in greetings):
         reply = "Chào bạn 👋! Rất vui được gặp bạn."
     elif any(word in text_lower for word in bye_words):
@@ -49,9 +55,18 @@ def handle_message(sender, text):
     elif any(word in text_lower for word in thanks_words):
         reply = "Không có gì 😊 Rất vui được giúp bạn."
     elif text_lower == "menu":
-        reply = "📌 Menu:\n1. Giới thiệu\n2. Hỗ trợ\n3. Liên hệ"
+        reply = "📌 Menu:\n1. Giới thiệu\n2. Hỗ trợ\n3. Liên hệ\n4. Thời tiết\n5. Giờ hiện tại"
+    elif any(word in text_lower for word in ask_time):
+        from datetime import datetime
+        reply = f"⏰ Bây giờ là {datetime.now().strftime('%H:%M:%S')}."
+    elif any(word in text_lower for word in ask_weather):
+        reply = "☁️ Mình chưa kết nối dữ liệu thời tiết, nhưng bạn có thể xem dự báo trên Google nhé."
+    elif any(word in text_lower for word in ask_name):
+        reply = "Mình là chatbot mini 🤖, trợ lý ảo của bạn."
+    elif any(word in text_lower for word in ask_contact):
+        reply = "📞 Bạn có thể liên hệ qua email: support@example.com hoặc gọi 0123-456-789."
     else:
-        reply = f"Bạn vừa nói: {text}"  # fallback
+        reply = f"Bạn vừa nói: {text}"
 
     send_message(sender, reply)
 
