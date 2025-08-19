@@ -9,6 +9,7 @@ PAGE_ACCESS_TOKEN = "EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRU
 VERIFY_TOKEN = "botchat123"
 RESPONSES_FILE = "responses.json"
 
+sessions = {}
 # ======================
 # Load / Save học thêm
 # ======================
@@ -74,19 +75,19 @@ def webhook():
                         reply = f"⏰ Bây giờ là {now}."
                     # --- nối từ ---
                     elif any(word in text_lower for word in game_keywords):
-                        if "noi_tu" not in session:
-                            session["noi_tu"] = {"last_word": "bạn"}
+                        if sender not in sessions:   # nếu user chưa có session game
+                            sessions[sender] = {"noi_tu": {"last_word": "bạn"}}
                             reply = "🎮 Bắt đầu game nối từ! Mình mở đầu: 'bạn'. Giờ tới lượt bạn!"
                         else:
-                            last_word = session["noi_tu"]["last_word"]
+                            last_word = sessions[sender]["noi_tu"]["last_word"]
                             new_word = text.strip().lower()
                     
-                            if new_word[0] == last_word[-1]:
-                                session["noi_tu"]["last_word"] = new_word
+                            if new_word and new_word[0] == last_word[-1]:
+                                sessions[sender]["noi_tu"]["last_word"] = new_word
                                 reply = f"✅ Đúng rồi! Mình nối tiếp: '{new_word[-1]}...'"
                             else:
                                 reply = f"❌ Sai rồi! Từ '{new_word}' không bắt đầu bằng '{last_word[-1]}'. Game kết thúc."
-                                del session["noi_tu"]
+                                del sessions[sender]
                                 
                     elif any(word in text_lower for word in dice_keywords):
                         if "chơi" in text_lower or "2" in text_lower:
