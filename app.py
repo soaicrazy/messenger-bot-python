@@ -1,7 +1,7 @@
 import os, hmac, hashlib
 from flask import Flask, request
 import requests
-
+from datetime import datetime
 app = Flask(__name__)
 
 PAGE_ACCESS_TOKEN ="EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRUHWc4ZBx3pRbSz5d8wZCtsTd8GyAZADfGfWKUmCZBJnygZAVvjvH7VgqRBURsLTZC45TWGnIaD7cQ8FfPVfjBoBZALpQMOIlc7QJnGBDTswByTba30lxvGenx72PxifPbPBkzk1X5igoWCZBl8nGZBgZDZD"
@@ -57,9 +57,8 @@ def handle_message(sender, text):
     elif text_lower == "menu":
         reply = "📌 Menu:\n1. Giới thiệu\n2. Hỗ trợ\n3. Liên hệ\n4. Thời tiết\n5. Giờ hiện tại"
     elif any(word in text_lower for word in ask_time):
-    from datetime import datetime
-    time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    reply = f"⏰ Bây giờ là {time}."
+                        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        reply = f"⏰ Bây giờ là {now}."
     elif any(word in text_lower for word in ask_weather):
         reply = "☁️ Mình chưa kết nối dữ liệu thời tiết, nhưng bạn có thể xem dự báo trên Google nhé."
     elif any(word in text_lower for word in ask_name):
