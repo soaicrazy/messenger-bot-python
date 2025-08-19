@@ -5,7 +5,7 @@ import requests
 app = Flask(__name__)
 
 PAGE_ACCESS_TOKEN = os.getenv("EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRUHWc4ZBx3pRbSz5d8wZCtsTd8GyAZADfGfWKUmCZBJnygZAVvjvH7VgqRBURsLTZC45TWGnIaD7cQ8FfPVfjBoBZALpQMOIlc7QJnGBDTswByTba30lxvGenx72PxifPbPBkzk1X5igoWCZBl8nGZBgZDZD")
-VERIFY_TOKEN = os.getenv("botchat123")
+VERIFY_TOKEN = "botchat123"
 APP_SECRET = os.getenv("APP_SECRET")
 
 # ✅ Verify webhook
@@ -47,4 +47,5 @@ def send_message(psid, text):
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 3000))
     app.run(host="0.0.0.0", port=port)
+
 
