@@ -11,7 +11,7 @@ PAGE_ACCESS_TOKEN = "FACEBOOK_PAGE_ACCESS_TOKEN"
 VERIFY_TOKEN = "botchat123"
 RESPONSES_FILE = "responses.json"
 
-openai.api_key = "OPENAI_API_KEY"   # << thay bằng API key của bạn
+openai.api_key = "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"   # << thay bằng API key của bạn
 
 sessions = {}
 
