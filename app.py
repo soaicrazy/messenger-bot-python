@@ -5,6 +5,25 @@ import openai
 
 app = Flask(__name__)
 
+@app.route("/webhook", methods=["GET", "POST"])
+def webhook():
+    if request.method == "GET":
+        # Facebook webhook verification
+        verify_token = "YOUR_VERIFY_TOKEN"
+        mode = request.args.get("hub.mode")
+        token = request.args.get("hub.verify_token")
+        challenge = request.args.get("hub.challenge")
+
+        if mode == "subscribe" and token == verify_token:
+            return challenge, 200
+        else:
+            return "Verification failed", 403
+
+    elif request.method == "POST":
+        # Messenger event handling
+        data = request.get_json()
+        print(data)  # Debug log
+        return "EVENT_RECEIVED", 200
 # Lấy biến môi trường từ Railway
 PAGE_ACCESS_TOKEN = os.getenv("PAGE_ACCESS_TOKEN")
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
