@@ -7,7 +7,7 @@ import openai
 # ============= CẤU HÌNH =============
 app = Flask(__name__)
 
-PAGE_ACCESS_TOKEN = "FACEBOOK_PAGE_ACCESS_TOKEN"
+PAGE_ACCESS_TOKEN = "EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRUHWc4ZBx3pRbSz5d8wZCtsTd8GyAZADfGfWKUmCZBJnygZAVvjvH7VgqRBURsLTZC45TWGnIaD7cQ8FfPVfjBoBZALpQMOIlc7QJnGBDTswByTba30lxvGenx72PxifPbPBkzk1X5igoWCZBl8nGZBgZDZD"
 VERIFY_TOKEN = "botchat123"
 RESPONSES_FILE = "responses.json"
 
