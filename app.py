@@ -57,14 +57,15 @@ def handle_message(sender, text):
     elif text_lower == "menu":
         reply = "📌 Menu:\n1. Giới thiệu\n2. Hỗ trợ\n3. Liên hệ\n4. Thời tiết\n5. Giờ hiện tại"
     elif any(word in text_lower for word in ask_time):
-        from datetime import datetime
-        reply = f"⏰ Bây giờ là {datetime.now().strftime('%H:%M:%S')}."
+    from datetime import datetime
+    time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    reply = f"⏰ Bây giờ là {time}."
     elif any(word in text_lower for word in ask_weather):
         reply = "☁️ Mình chưa kết nối dữ liệu thời tiết, nhưng bạn có thể xem dự báo trên Google nhé."
     elif any(word in text_lower for word in ask_name):
         reply = "Mình là chatbot mini 🤖, trợ lý ảo của bạn."
     elif any(word in text_lower for word in ask_contact):
-        reply = "📞 Bạn có thể liên hệ qua email: support@example.com hoặc gọi 0123-456-789."
+        reply = "📞 Bạn có thể liên hệ qua email: soaicrazy@gmail.com hoặc gọi 0964739032."
     else:
         reply = f"Bạn vừa nói: {text}"
 
