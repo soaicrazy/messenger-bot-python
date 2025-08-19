@@ -1,34 +1,74 @@
-import os
-import requests
+import os, random
 from flask import Flask, request
-from threading import Thread
+import requests
+from datetime import datetime
 
 app = Flask(__name__)
 
-PAGE_ACCESS_TOKEN = os.getenv("PAGE_ACCESS_TOKEN")
-VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+PAGE_ACCESS_TOKEN ="EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRUHWc4ZBx3pRbSz5d8wZCtsTd8GyAZADfGfWKUmCZBJnygZAVvjvH7VgqRBURsLTZC45TWGnIaD7cQ8FfPVfjBoBZALpQMOIlc7QJnGBDTswByTba30lxvGenx72PxifPbPBkzk1X5igoWCZBl8nGZBgZDZD"
+VERIFY_TOKEN = "botchat123"
 
-# Gọi OpenAI API
-def ask_openai(prompt):
-    url = "https://api.openai.com/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-        "Content-Type": "application/json"
-    }
-    body = {
-        "model": "gpt-3.5-turbo",
-        "messages": [{"role": "user", "content": prompt}],
-        "temperature": 0.7
-    }
-    r = requests.post(url, headers=headers, json=body, timeout=20)
-    if r.status_code == 200:
-        return r.json()["choices"][0]["message"]["content"]
-    else:
-        print("Error OpenAI:", r.text)
-        return "Xin lỗi, tôi không thể trả lời lúc này."
+# ✅ Verify webhook
+@app.route("/webhook", methods=["GET"])
+def verify():
+    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.verify_token") == VERIFY_TOKEN:
+        return request.args.get("hub.challenge"), 200
+    return "Forbidden", 403
 
-# Gửi message ra Messenger
+# ✅ Nhận message
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    data = request.get_json()
+    if data.get("object") == "page":
+        for entry in data.get("entry", []):
+            for event in entry.get("messaging", []):
+                sender = event.get("sender", {}).get("id")
+                if not sender:
+                    continue
+                if "message" in event:
+                    text = event["message"].get("text", "")
+                    text_lower = text.lower()
+
+                    greetings = ["hi", "hello", "xin chào", "chào"]
+                    ask_time = ["mấy giờ", "time", "giờ"]
+                    dice_keywords = ["xúc xắc", "dice", "lắc"]
+
+                    # --- xử lý tin nhắn ---
+                    if any(word in text_lower for word in greetings):
+                        reply = "Xin chào bạn 👋"
+
+                    elif any(word in text_lower for word in ask_time):
+                        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        reply = f"⏰ Bây giờ server là {now}."
+
+                    elif any(word in text_lower for word in dice_keywords):
+                        if "chơi" in text_lower or "2" in text_lower:
+                            user_dice = random.randint(1, 6)
+                            bot_dice = random.randint(1, 6)
+                            if user_dice > bot_dice:
+                                result = "🎉 Bạn thắng!"
+                            elif user_dice < bot_dice:
+                                result = "🤖 Bot thắng!"
+                            else:
+                                result = "😅 Hòa rồi!"
+                            reply = f"🎲 Bạn tung được {user_dice}\n🤖 Bot tung được {bot_dice}\n👉 {result}"
+                        else:
+                            dice = random.randint(1, 6)
+                            reply = f"🎲 Bạn tung được số {dice}"
+
+                    else:
+                        reply = f"Bạn vừa nói: {text}"
+
+                    send_message(sender, reply)
+
+                elif "postback" in event:
+                    payload = event["postback"].get("payload")
+                    if payload == "GET_STARTED":
+                        send_message(sender, "Xin chào! Gõ 'menu' để bắt đầu.")
+        return "OK", 200
+    return "Not Found", 404
+
+# ✅ Gửi message ra Messenger
 def send_message(psid, text):
     url = "https://graph.facebook.com/v19.0/me/messages"
     params = {"access_token": PAGE_ACCESS_TOKEN}
@@ -37,30 +77,6 @@ def send_message(psid, text):
     if r.status_code != 200:
         print("Error:", r.text)
 
-# Xử lý message async
-def handle_message(sender, text):
-    reply = ask_openai(text)
-    send_message(sender, reply)
-
-# Webhook verify (GET)
-@app.route("/webhook", methods=["GET"])
-def verify():
-    token = request.args.get("hub.verify_token")
-    challenge = request.args.get("hub.challenge")
-    if token == VERIFY_TOKEN:
-        return challenge
-    return "Verification token mismatch", 403
-
-# Webhook nhận tin nhắn (POST)
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    data = request.get_json()
-    if data.get("object") == "page":
-        for entry in data.get("entry", []):
-            for event in entry.get("messaging", []):
-                sender = event.get("sender", {}).get("id")
-                if "message" in event:
-                    text = event["message"].get("text", "")
-                    Thread(target=handle_message, args=(sender, text)).start()
-        return "EVENT_RECEIVED", 200
-    return "Not Found", 404
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 3000))
+    app.run(host="0.0.0.0", port=port)
