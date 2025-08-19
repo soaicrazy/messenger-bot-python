@@ -1,21 +1,32 @@
-import os, random
+import os, random, json
 from flask import Flask, request
 import requests
 from datetime import datetime
 
 app = Flask(__name__)
 
-PAGE_ACCESS_TOKEN ="EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRUHWc4ZBx3pRbSz5d8wZCtsTd8GyAZADfGfWKUmCZBJnygZAVvjvH7VgqRBURsLTZC45TWGnIaD7cQ8FfPVfjBoBZALpQMOIlc7QJnGBDTswByTba30lxvGenx72PxifPbPBkzk1X5igoWCZBl8nGZBgZDZD"
+PAGE_ACCESS_TOKEN = "EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRUHWc4ZBx3pRbSz5d8wZCtsTd8GyAZADfGfWKUmCZBJnygZAVvjvH7VgqRBURsLTZC45TWGnIaD7cQ8FfPVfjBoBZALpQMOIlc7QJnGBDTswByTba30lxvGenx72PxifPbPBkzk1X5igoWCZBl8nGZBgZDZD"
 VERIFY_TOKEN = "botchat123"
 
-# ✅ Verify webhook
+# ---------------- Load & Lưu dữ liệu ----------------
+try:
+    with open("data.json", "r", encoding="utf-8") as f:
+        responses = json.load(f)
+except:
+    responses = {}
+
+def save_responses():
+    with open("data.json", "w", encoding="utf-8") as f:
+        json.dump(responses, f, ensure_ascii=False, indent=2)
+
+# ---------------- Xác minh webhook ----------------
 @app.route("/webhook", methods=["GET"])
 def verify():
     if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.verify_token") == VERIFY_TOKEN:
         return request.args.get("hub.challenge"), 200
     return "Forbidden", 403
 
-# ✅ Nhận message
+# ---------------- Nhận tin nhắn ----------------
 @app.route("/webhook", methods=["POST"])
 def webhook():
     data = request.get_json()
@@ -25,6 +36,7 @@ def webhook():
                 sender = event.get("sender", {}).get("id")
                 if not sender:
                     continue
+
                 if "message" in event:
                     text = event["message"].get("text", "")
                     text_lower = text.lower()
@@ -33,7 +45,7 @@ def webhook():
                     ask_time = ["mấy giờ", "time", "giờ"]
                     dice_keywords = ["xúc xắc", "dice", "lắc"]
 
-                    # --- xử lý tin nhắn ---
+                    # --------- xử lý tin nhắn ---------
                     if any(word in text_lower for word in greetings):
                         reply = "Xin chào bạn 👋"
 
@@ -56,8 +68,27 @@ def webhook():
                             dice = random.randint(1, 6)
                             reply = f"🎲 Bạn tung được số {dice}"
 
+                    # --- dạy bot học ---
+                    elif text_lower.startswith("học:"):
+                        try:
+                            parts = text_lower.replace("học:", "").split("=")
+                            keyword, answer = parts[0].strip(), parts[1].strip()
+                            responses[keyword] = answer
+                            save_responses()
+                            reply = f"👌 Đã học thêm từ mới: '{keyword}'"
+                        except:
+                            reply = "⚠️ Sai cú pháp, hãy nhắn: học: từ khóa = câu trả lời"
+
+                    # --- kiểm tra trong data.json ---
                     else:
-                        reply = f"Bạn vừa nói: {text}"
+                        found = False
+                        for key, value in responses.items():
+                            if key in text_lower:
+                                reply = value
+                                found = True
+                                break
+                        if not found:
+                            reply = f"🤔 Xin lỗi, mình chưa hiểu: {text}"
 
                     send_message(sender, reply)
 
@@ -68,7 +99,7 @@ def webhook():
         return "OK", 200
     return "Not Found", 404
 
-# ✅ Gửi message ra Messenger
+# ---------------- Gửi message ra Messenger ----------------
 def send_message(psid, text):
     url = "https://graph.facebook.com/v19.0/me/messages"
     params = {"access_token": PAGE_ACCESS_TOKEN}
@@ -77,6 +108,7 @@ def send_message(psid, text):
     if r.status_code != 200:
         print("Error:", r.text)
 
+# ---------------- Chạy Flask ----------------
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 3000))
     app.run(host="0.0.0.0", port=port)
