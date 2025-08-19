@@ -2,7 +2,7 @@ import os, random, json
 from flask import Flask, request
 import requests
 from datetime import datetime
-import openai
+from openai import OpenAI
 
 # ============= CẤU HÌNH =============
 app = Flask(__name__)
@@ -11,8 +11,7 @@ PAGE_ACCESS_TOKEN = "EAAU0Fisjh0cBPEbpiq9JpPgZCkTmNKykol1j2jYC5AdMoxlPi0RThvTjRU
 VERIFY_TOKEN = "botchat123"
 RESPONSES_FILE = "responses.json"
 
-openai.api_key = "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"   # << thay bằng API key của bạn
-
+client = OpenAI(api_key="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")
 sessions = {}
 
 # ======================
@@ -33,11 +32,11 @@ def save_responses():
 # ======================
 def ask_gpt(prompt):
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",   # hoặc "gpt-4"
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",   # hoặc "gpt-4o-mini" cho nhanh + rẻ
             messages=[{"role": "user", "content": prompt}]
         )
-        return response["choices"][0]["message"]["content"].strip()
+        return response.choices[0].message.content.strip()
     except Exception as e:
         return f"⚠️ Lỗi AI: {e}"
 
