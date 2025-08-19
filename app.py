@@ -166,8 +166,8 @@ def send_message(psid, text):
     params = {"access_token": PAGE_ACCESS_TOKEN}
     body = {"recipient": {"id": psid}, "message": {"text": text}}
     r = requests.post(url, params=params, json=body)
-    if r.status_code != 200:
-        print("Error:", r.text)
+    print("SendMessage Response:", r.status_code, r.text)  # In log để debug
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 3000))
