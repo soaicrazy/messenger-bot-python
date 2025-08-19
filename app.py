@@ -26,14 +26,35 @@ def webhook():
                     continue
                 if "message" in event:
                     text = event["message"].get("text", "")
-                    send_message(sender, f"Bạn vừa nói: {text}")
+                     handle_message(sender, text)
                 elif "postback" in event:
                     payload = event["postback"].get("payload")
                     if payload == "GET_STARTED":
                         send_message(sender, "Xin chào! Gõ 'menu' để bắt đầu.")
         return "OK", 200
     return "Not Found", 404
+    
+# ✅ Xử lý tin nhắn người dùng
+def handle_message(sender, text):
+    text_lower = text.strip().lower()
 
+    greetings = ["hi", "hello", "xin chào", "chào", "helo", "hí"]
+    bye_words = ["bye", "tạm biệt", "bái bai"]
+    thanks_words = ["cảm ơn", "thank", "thanks"]
+
+    if any(word in text_lower for word in greetings):
+        reply = "Chào bạn 👋! Rất vui được gặp bạn."
+    elif any(word in text_lower for word in bye_words):
+        reply = "Tạm biệt! Hẹn gặp lại 👋"
+    elif any(word in text_lower for word in thanks_words):
+        reply = "Không có gì 😊 Rất vui được giúp bạn."
+    elif text_lower == "menu":
+        reply = "📌 Menu:\n1. Giới thiệu\n2. Hỗ trợ\n3. Liên hệ"
+    else:
+        reply = f"Bạn vừa nói: {text}"  # fallback
+
+    send_message(sender, reply)
+    
 # ✅ Gửi message ra Messenger
 def send_message(psid, text):
     url = "https://graph.facebook.com/v19.0/me/messages"
