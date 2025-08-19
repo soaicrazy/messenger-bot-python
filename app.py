@@ -49,7 +49,7 @@ def webhook():
                     text_lower = text.lower()
 
                     greetings = ["hi", "hello", "xin chào", "chào"]
-                    ask_time = ["mấy giờ", "time", "giờ"]
+                    ask_time = ["mấy giờ", "time", "giờ", "thời gian"]
                     dice_keywords = ["xúc xắc", "dice", "lắc"]
 
                     # --- học thêm ---
@@ -69,7 +69,7 @@ def webhook():
 
                     elif any(word in text_lower for word in ask_time):
                         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                        reply = f"⏰ Bây giờ server là {now}."
+                        reply = f"⏰ Bây giờ là {now}."
 
                     elif any(word in text_lower for word in dice_keywords):
                         if "chơi" in text_lower or "2" in text_lower:
@@ -94,7 +94,8 @@ def webhook():
                                 found = True
                                 break
                         if not found:
-                            reply = f"🤔 Xin lỗi, mình chưa hiểu: {text}"
+                           reply = f"🤔 Xin lỗi, mình chưa hiểu: {text}\n👉 Bạn có thể dạy mình bằng cú pháp: học: từ khóa = câu trả lời"
+
 
                     send_message(sender, reply)
 
