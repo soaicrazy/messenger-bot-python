@@ -2,6 +2,8 @@ import os, hmac, hashlib
 from flask import Flask, request
 import requests
 import openai
+import threading
+
 
 
 app = Flask(__name__)
@@ -54,14 +56,21 @@ def webhook():
                     continue
                 if "message" in event:
                     text = event["message"].get("text", "")
-                    reply = ask_gpt(text)
-                    send_message(sender, reply)
+                    
+                    # chạy GPT ở thread khác để không block response
+                    threading.Thread(target=handle_message, args=(sender, text)).start()
+                    
                 elif "postback" in event:
                     payload = event["postback"].get("payload")
                     if payload == "GET_STARTED":
-                        send_message(sender, "Xin chào! Gõ 'menu' để bắt đầu.")
+                        threading.Thread(target=send_message, args=(sender, "Xin chào! Gõ 'menu' để bắt đầu.")).start()
         return "OK", 200
     return "Not Found", 404
+
+def handle_message(sender, text):
+    reply = ask_gpt(text)
+    send_message(sender, reply)
+
 
 #Gửi message ra Messenger
 def send_message(psid, text):
