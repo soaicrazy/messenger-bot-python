@@ -11,14 +11,30 @@ VERIFY_TOKEN = "botchat123"
 APP_SECRET = os.getenv("APP_SECRET")
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# ✅ Verify webhook
+#Hàm gọi GPT
+def ask_gpt(user_message):
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",   # dùng gpt-4o-mini để tiết kiệm
+            messages=[
+                {"role": "system", "content": "Bạn là một trợ lý AI thân thiện."},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=200
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print("GPT Error:", e)
+        return "Xin lỗi, tôi chưa thể trả lời lúc này."
+
+#Verify webhook
 @app.route("/webhook", methods=["GET"])
 def verify():
     if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.verify_token") == VERIFY_TOKEN:
         return request.args.get("hub.challenge"), 200
     return "Forbidden", 403
 
-# ✅ Nhận message
+#Nhận message
 @app.route("/webhook", methods=["POST"])
 def webhook():
     data = request.get_json()
@@ -30,7 +46,8 @@ def webhook():
                     continue
                 if "message" in event:
                     text = event["message"].get("text", "")
-                    send_message(sender, f"Bạn vừa nói: {text}")
+                    reply = ask_gpt(text)
+                    send_message(sender, reply)
                 elif "postback" in event:
                     payload = event["postback"].get("payload")
                     if payload == "GET_STARTED":
@@ -38,7 +55,7 @@ def webhook():
         return "OK", 200
     return "Not Found", 404
 
-# ✅ Gửi message ra Messenger
+#Gửi message ra Messenger
 def send_message(psid, text):
     url = "https://graph.facebook.com/v19.0/me/messages"
     params = {"access_token": PAGE_ACCESS_TOKEN}
@@ -50,4 +67,3 @@ def send_message(psid, text):
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 3000))
     app.run(host="0.0.0.0", port=port)
-
